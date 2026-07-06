@@ -1,26 +1,25 @@
 # Portfolio Site
 
-Kişisel portfolyo sitem — plain HTML/CSS/JS, backend yok. GitHub Pages'te `alperensamilx.github.io` adıyla barındırılacak şekilde tasarlandı.
+My personal portfolio site — plain HTML/CSS/JS, no backend. Built to be hosted on GitHub Pages as `alperensamilx.github.io`.
 
-## Yapı
+## Structure
 
 ```
-index.html    # tüm sayfa (hero, about, skills, projects, contact)
+index.html    # the whole page (hero, about, skills, projects, contact)
 styles.css
-script.js     # mobil menü toggle
-assets/       # proje ekran görüntüleri
+script.js     # mobile menu toggle, scroll reveal, project screenshot tabs
+assets/       # project screenshots
 ```
 
-## Güncellemesi gerekenler
+## To update
 
-- `index.html` içinde `#liveDemoLink` — OrderLens Render'a deploy edildikten sonra gerçek URL ile değiştir
-- `index.html` içindeki LinkedIn linki (`href="#"`) — kendi LinkedIn profil linkinle değiştir
-- Yeni bir proje bitirdikçe `Projects` bölümüne yeni bir `.project-card` ekle
+- The LinkedIn link in `index.html` (currently `href="#"`) — replace with your own LinkedIn profile link
+- Add a new `.project-card` to the `Projects` section as new projects are finished
 
-## Yerelde önizleme
+## Local preview
 
 ```bash
 python3 -m http.server 8080
 ```
 
-`http://localhost:8080` adresine git.
+Visit `http://localhost:8080`.
