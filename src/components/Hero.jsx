@@ -13,7 +13,7 @@ export default function Hero() {
           I build backend systems that turn messy data into clear decisions.
         </h2>
         <p className="reveal text-slate-300 max-w-xl mt-6 leading-relaxed">
-          Python &amp; Django developer building web applications, data analysis tools, and REST APIs
+          Software developer building web applications, data analysis tools, and REST APIs
           for small businesses and e-commerce sellers. Currently available for freelance / project-based work.
         </p>
         <div className="reveal flex flex-wrap gap-4 mt-8">

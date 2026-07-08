@@ -6,7 +6,7 @@ export default function Contact() {
       <p className="reveal mono text-accent mb-3">04. What's Next?</p>
       <h2 className="reveal section-heading text-4xl font-bold text-white mb-6">Let's Work Together</h2>
       <p className="reveal text-slate-400 mb-10">
-        Looking for a Django developer for a project? I'm available for flexible, project-based work —
+        Looking for a software developer for a project? I'm available for flexible, project-based work —
         send me a message and let's talk about what you need.
       </p>
       <a
