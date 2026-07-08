@@ -1,4 +1,4 @@
-import { GitHubIcon, MailIcon } from './icons.jsx';
+import { GitHubIcon, LinkedInIcon, MailIcon } from './icons.jsx';
 
 export default function Contact() {
   return (
@@ -18,6 +18,9 @@ export default function Contact() {
       <div className="reveal flex items-center justify-center gap-6 mt-10 text-slate-400">
         <a href="https://github.com/alperensamilx" target="_blank" rel="noopener" className="hover:text-accent transition-colors">
           <GitHubIcon />
+        </a>
+        <a href="https://www.linkedin.com/in/alperen-şamil-ilmaz-91857219a/" target="_blank" rel="noopener" className="hover:text-accent transition-colors">
+          <LinkedInIcon />
         </a>
         <a href="mailto:alperensamil05@gmail.com" className="hover:text-accent transition-colors">
           <MailIcon />
