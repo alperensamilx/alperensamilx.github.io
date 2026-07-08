@@ -18,7 +18,7 @@ const PROJECTS = [
       'A self-hosted alternative to UptimeRobot: pings your URLs on a schedule, auto-opens/closes incidents on state change with email alerts, and publishes a public status page + JSON API per organization.',
     tech: ['Django', 'Celery', 'Redis', 'DRF', 'Docker'],
     github: 'https://github.com/alperensamilx/pulsecheck',
-    demo: null,
+    demo: 'https://pulsecheck-kky7.onrender.com',
     image: null,
   },
   {
