@@ -9,7 +9,7 @@ const PROJECTS = [
     tech: ['Django', 'DRF', 'Celery', 'pandas', 'Docker'],
     github: 'https://github.com/alperensamilx/orderlens',
     demo: 'https://orderlens-xkef.onrender.com',
-    image: '/assets/orderlens-panel.png',
+    image: null,
   },
   {
     name: 'PulseCheck',
@@ -29,7 +29,7 @@ const PROJECTS = [
     tech: ['Django', 'Groq API', 'pypdf'],
     github: 'https://github.com/alperensamilx/jobfit-ai',
     demo: 'https://jobfit-ai-0n3m.onrender.com',
-    image: '/assets/jobfit-result.png',
+    image: null,
   },
 ];
 

@@ -1,7 +1,7 @@
 const JOURNEY = [
   { title: 'Architecture Student', desc: 'Studied architecture before switching paths into software.' },
   { title: 'Data Scientist — Italy', desc: 'Built data pipelines and tools with Python/Django, remotely.' },
-  { title: 'Licensed Pilot', desc: 'Completed pilot training; now licensed and job-hunting in aviation.' },
+  { title: 'Commercial Pilot', desc: 'Completed pilot training; now licensed and job-hunting in aviation.' },
   { title: 'Full-Stack Developer', desc: 'Back to building — Django, REST APIs, data-driven web apps.' },
 ];
 
