@@ -45,6 +45,7 @@ struct RootView: View {
     private var tabContent: some View {
         switch model.tab {
         case .today: TodayView()
+        case .roster: RosterView()
         case .rest: RestView()
         case .city: CityView()
         case .kit: KitView()

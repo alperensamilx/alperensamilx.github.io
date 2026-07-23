@@ -53,8 +53,8 @@ private struct ProfileCard: View {
             .padding(.vertical, 8)
             .frame(minHeight: 52)
 
-            infoRow(label: "Return · AV 205, Thu", value: "JFK 14:15 → IST 07:55+1")
-            infoRow(label: "Return report", value: "11:15 EDT")
+            infoRow(label: "Return · AV 205, Thu", value: "LHR 14:15 → IST 20:05")
+            infoRow(label: "Return report", value: "12:15 BST")
         }
         .padding(.vertical, 4)
         .card()
@@ -88,7 +88,7 @@ private struct FlightCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Text("AV 204 · A350 · Gate B7")
+                Text("AV 204 · A321neo · Gate B2")
                     .font(.hanken(12.5, .semibold))
                     .foregroundStyle(p.secondary)
                 Spacer()
@@ -105,7 +105,7 @@ private struct FlightCard: View {
                     .font(.hanken(30, .heavy))
                     .tracking(-0.6)
                 RouteLine()
-                Text("JFK")
+                Text("LHR")
                     .font(.hanken(30, .heavy))
                     .tracking(-0.6)
             }
@@ -113,9 +113,9 @@ private struct FlightCard: View {
             HStack {
                 Text("Istanbul")
                 Spacer()
-                Text("11 h 45 · 7 zones west")
+                Text("4 h 05 · 2 zones west")
                 Spacer()
-                Text("New York")
+                Text("London")
             }
             .font(.hanken(12))
             .foregroundStyle(p.secondary)
@@ -135,7 +135,7 @@ private struct FlightCard: View {
                     Text(model.staString)
                         .font(.hanken(23, .heavy))
                         .monospacedDigit()
-                    Text("arrives · EDT")
+                    Text("arrives · BST")
                         .font(.hanken(12))
                         .foregroundStyle(p.secondary)
                 }
@@ -204,7 +204,7 @@ private struct DayRibbonCard: View {
     @Environment(\.palette) private var p
 
     private static let labels: [(time: String, label: String)] = [
-        ("06:50", "Report"), ("08:35", "Wheels up"), ("19:20", "On blocks"), ("20:50", "Hotel"),
+        ("06:50", "Report"), ("08:35", "Wheels up"), ("12:40", "On blocks"), ("14:40", "Hotel"),
     ]
 
     var body: some View {
@@ -312,12 +312,12 @@ private struct LayoverGridCard: View {
     var body: some View {
         Grid(alignment: .topLeading, horizontalSpacing: 14, verticalSpacing: 16) {
             GridRow {
-                stat("25 h 55 m", "in New York")
-                stat("The Beekman", "shuttle +60 min")
+                stat("24 h 35 m", "in London")
+                stat("Hoxton, Holborn", "shuttle +60 min")
             }
             GridRow {
-                stat("≈ $80", "per diem · $74/24 h")
-                stat("27° cloud", "on arrival")
+                stat("≈ $76", "per diem · $74/24 h")
+                stat("22° showers", "on arrival")
             }
         }
         .padding(.horizontal, 18)

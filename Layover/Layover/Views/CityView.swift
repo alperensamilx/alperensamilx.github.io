@@ -7,7 +7,7 @@ struct CityView: View {
     var body: some View {
         @Bindable var model = model
         VStack(alignment: .leading, spacing: 0) {
-            Kicker("NEW YORK · LOCAL \(model.nycClock) · 27°")
+            Kicker("LONDON · LOCAL \(model.cityClock) · 22°")
                 .padding(.top, 10)
                 .padding(.bottom, 3)
             ScreenTitle("City")
@@ -34,14 +34,14 @@ private struct CrewIntelCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            (Text("\(model.nycFriends.count) friends")
+            (Text("\(model.lhrFriends.count) friends")
                 .foregroundStyle(p.accentText)
-            + Text(" know New York — ask before you go"))
+            + Text(" know London — ask before you go"))
                 .font(.hanken(13, .bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(EdgeInsets(top: 12, leading: 18, bottom: 4, trailing: 18))
 
-            let friends = model.nycFriends
+            let friends = model.lhrFriends
             ForEach(friends.indices, id: \.self) { index in
                 let friend = friends[index]
                 VStack(spacing: 0) {
@@ -55,7 +55,7 @@ private struct CrewIntelCard: View {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(friend.name)
                                 .font(.hanken(14, .bold))
-                            Text("JFK ×\(friend.nycCount) · \(friend.role)")
+                            Text("LHR ×\(friend.lhrCount) · \(friend.role)")
                                 .font(.hanken(11.5))
                                 .foregroundStyle(p.secondary)
                         }
@@ -84,7 +84,7 @@ private struct QuickConvertCard: View {
         VStack(alignment: .leading, spacing: 0) {
             (Text("Quick convert ")
                 .font(.hanken(13, .bold))
-            + Text("· mid-market, $1 = ₺43.62")
+            + Text("· mid-market, £1 = ₺55.30")
                 .font(.hanken(13, .semibold))
                 .foregroundStyle(p.secondary))
                 .padding(.bottom, 10)

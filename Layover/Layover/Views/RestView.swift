@@ -22,10 +22,10 @@ struct RestView: View {
             fdpFootnote
                 .padding(.horizontal, 4)
                 .padding(.top, 10)
-            SectionHeader("Shift plan — 7 zones west")
+            SectionHeader("Shift plan — 2 zones west")
             ShiftPlanCard()
                 .padding(.bottom, 8)
-            Text("Anchor: the New York evening · times EDT.")
+            Text("Anchor: the London evening · times BST.")
                 .font(.hanken(12))
                 .foregroundStyle(p.secondary)
                 .padding(.horizontal, 4)

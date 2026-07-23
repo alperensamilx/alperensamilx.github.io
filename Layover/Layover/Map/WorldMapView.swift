@@ -41,7 +41,7 @@ enum MapData {
     ]
     static let homeID = "792"
     static let home = City(code: "IST", lon: 28.98, lat: 41.0)
-    static let currentCityCode = "JFK"
+    static let currentCityCode = "LHR"
 
     // Great-circle interpolation between two coordinates, in degrees.
     static func greatCircle(from a: City, to b: City, segments: Int = 48) -> [(lon: Double, lat: Double)] {

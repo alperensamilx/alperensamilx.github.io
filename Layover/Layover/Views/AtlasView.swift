@@ -33,7 +33,7 @@ private struct MapCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             WorldMapView()
-            Text("Teal — flown · filled square — home · ringed — this week: NYC")
+            Text("Teal — flown · filled square — home · ringed — this week: LHR")
                 .font(.hanken(11.5))
                 .foregroundStyle(p.secondary)
         }

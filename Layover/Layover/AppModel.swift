@@ -5,6 +5,7 @@ import Observation
 
 enum AppTab: String, CaseIterable {
     case today = "Today"
+    case roster = "Roster"
     case rest = "Rest"
     case city = "City"
     case kit = "Kit"
@@ -13,6 +14,7 @@ enum AppTab: String, CaseIterable {
     var icon: String {
         switch self {
         case .today: "sun.max"
+        case .roster: "calendar"
         case .rest: "moon"
         case .city: "mappin.and.ellipse"
         case .kit: "briefcase"
@@ -59,7 +61,7 @@ struct Friend: Identifiable {
     let name: String
     let role: String
     let cities: Int?          // nil for freshly added friends -> "new"
-    let nycCount: Int
+    let lhrCount: Int         // times flown to the current layover city (LHR)
     let topAirports: [String]
     let mutual: Int
 
@@ -114,6 +116,53 @@ struct Stamp: Identifiable {
     var id: String { title }
 }
 
+// MARK: - Roster types
+
+enum RosterDayType {
+    case duty, off, leave, standby
+
+    var name: String {
+        switch self {
+        case .duty: "Duty"
+        case .off: "Day off"
+        case .leave: "Leave"
+        case .standby: "Standby"
+        }
+    }
+}
+
+struct RosterFlight {
+    let number: String
+    let route: String
+}
+
+struct RosterDay {
+    let type: RosterDayType
+    var code: String?
+    var label: String?
+    var flights: [RosterFlight] = []
+    var layoverStation: String?
+    var layoverHotel: String?
+    var hasMalariaWarning = false
+
+    init(type: RosterDayType, code: String? = nil, label: String? = nil,
+         flights: [RosterFlight] = [], layoverStation: String? = nil,
+         layoverHotel: String? = nil, hasMalariaWarning: Bool = false) {
+        self.type = type
+        self.code = code
+        self.label = label
+        self.flights = flights
+        self.layoverStation = layoverStation
+        self.layoverHotel = layoverHotel
+        self.hasMalariaWarning = hasMalariaWarning
+    }
+}
+
+enum CalendarCell {
+    case blank
+    case day(Int)
+}
+
 // MARK: - App model
 
 @Observable
@@ -133,13 +182,13 @@ final class AppModel {
 
     // Rest calculator
     var restStart = AppModel.time(hour: 6, minute: 50)
-    var restEnd = AppModel.time(hour: 20, minute: 50)
+    var restEnd = AppModel.time(hour: 13, minute: 10)
     var restLocation: RestLocation = .away
 
     // City
     var cityFilter: CityFilter = .all
-    var fxAmount = "74"
-    var fxFrom: Currency = .USD
+    var fxAmount = "60"
+    var fxFrom: Currency = .GBP
 
     // Kit
     var kitDone: Set<String> = []
@@ -149,6 +198,9 @@ final class AppModel {
     var tipsSent: Set<String> = []
     var expandedFriends: Set<String> = []
     var newFriendName = ""
+
+    // Roster
+    var selectedRosterDay = 8
 
     // MARK: Ticker
 
@@ -171,10 +223,10 @@ final class AppModel {
         return formatter
     }
     private static let istFormatter = clockFormatter("Europe/Istanbul")
-    private static let nycFormatter = clockFormatter("America/New_York")
+    private static let cityFormatter = clockFormatter("Europe/London")
 
     var istClock: String { Self.istFormatter.string(from: now) }
-    var nycClock: String { Self.nycFormatter.string(from: now) }
+    var cityClock: String { Self.cityFormatter.string(from: now) }
 
     // MARK: Persona
 
@@ -186,12 +238,12 @@ final class AppModel {
     // MARK: Flight
 
     var stdString: String { flightStatus == .delayed ? "09:20" : "08:35" }
-    var staString: String { flightStatus == .delayed ? "13:05" : "12:20" }
+    var staString: String { flightStatus == .delayed ? "11:25" : "10:40" }
 
     // MARK: Day ribbon
 
-    // Node minutes IST: 06:50 report, 08:35 wheels up, 19:20 on blocks, 20:50 hotel.
-    static let ribbonNodes: [Double] = [410, 515, 1160, 1250]
+    // Node minutes IST: 06:50 report, 08:35 wheels up, 12:40 on blocks, 14:40 hotel.
+    static let ribbonNodes: [Double] = [410, 515, 760, 880]
 
     var ribbonNowMinutes: Double {
         410 - Double(countdownSeconds) / 60
@@ -245,17 +297,15 @@ final class AppModel {
 
     var fdpNote: String {
         role == .cabin
-            ? "For cabin crew at a 06:50 report: 14:00 basic, up to 16:00 with in-flight rest. Today’s FDP is 13:30 — inside limits."
-            : "For flight crew at a 06:50 report: 13:00 acclimatised, 16:00 augmented with class-2 rest. Today’s FDP is 13:30 — legal augmented only."
+            ? "For cabin crew at a 06:50 report: 14:00 basic. Today’s FDP is 5:50 — well inside limits."
+            : "For flight crew at a 06:50 report: 13:00 acclimatised. Today’s FDP is 5:50 — well inside limits."
     }
 
     static let shiftRows: [ShiftRow] = [
-        ShiftRow(time: "to 10:00", label: "Sunglasses on — hold Istanbul a while", pill: .dark),
-        ShiftRow(time: "14:00", label: "Last caffeine of the day", pill: nil),
-        ShiftRow(time: "15–19:00", label: "Seek daylight — the bridge walk", pill: .light),
-        ShiftRow(time: "20:00", label: "Dinner light; skip the nightcap", pill: nil),
-        ShiftRow(time: "21:30", label: "Screens dim, curtains half", pill: nil),
-        ShiftRow(time: "22:30", label: "Lights out — 06:30 alarm, 8 h", pill: .dark),
+        ShiftRow(time: "14:30", label: "Last caffeine of the day", pill: nil),
+        ShiftRow(time: "17–19:00", label: "Daylight walk — the parks do it", pill: .light),
+        ShiftRow(time: "20:30", label: "Dinner light; skip the nightcap", pill: nil),
+        ShiftRow(time: "23:00", label: "Lights out — 07:00 alarm, 8 h", pill: .dark),
     ]
 
     // MARK: Currency
@@ -286,51 +336,51 @@ final class AppModel {
     // MARK: City guide
 
     static let venues: [Venue] = [
-        Venue(category: .eat, name: "Los Tacos No.1", isCrewFav: true, tag: nil, price: "$",
-              distance: "15 min · A/C to 14 St",
-              blurb: "Stand-up tacos; the queue is brutal but moves. Adobada, always."),
-        Venue(category: .eat, name: "Joe’s Pizza", isCrewFav: false, tag: "late-safe", price: "$",
-              distance: "20 min · subway to W 4 St",
-              blurb: "The classic slice, bright and fast — open until 4 a.m."),
-        Venue(category: .eat, name: "Xi’an Famous Foods", isCrewFav: false, tag: "solo-friendly", price: "$",
-              distance: "8 min walk · FiDi",
-              blurb: "Hand-pulled noodles in minutes; counter seating, no ceremony."),
-        Venue(category: .eat, name: "The Odeon", isCrewFav: false, tag: nil, price: "$$$",
-              distance: "12 min walk · Tribeca",
-              blurb: "The proper end-of-trip brasserie dinner. Book for 19:00."),
-        Venue(category: .coffee, name: "Black Fox Coffee", isCrewFav: true, tag: nil, price: "$$",
-              distance: "6 min walk · FiDi",
-              blurb: "Serious flat white; quiet corners before 11."),
-        Venue(category: .coffee, name: "La Cabra", isCrewFav: false, tag: nil, price: "$$",
-              distance: "18 min · 6 to Astor Pl",
-              blurb: "Danish roaster; the cardamom bun beats the jet lag."),
-        Venue(category: .coffee, name: "Devoción", isCrewFav: false, tag: "worth the trip", price: "$$",
-              distance: "30 min · Williamsburg",
-              blurb: "Bogotá beans under a greenhouse roof — daylight therapy."),
-        Venue(category: .see, name: "Brooklyn Bridge at sunrise", isCrewFav: true, tag: "beats jet lag", price: "Free",
-              distance: "10 min walk",
-              blurb: "Morning light is the reset. Walk out, coffee after."),
-        Venue(category: .see, name: "Staten Island Ferry", isCrewFav: false, tag: nil, price: "Free",
-              distance: "12 min walk · Whitehall",
-              blurb: "The skyline for nothing — 55 minutes round trip."),
-        Venue(category: .see, name: "The High Line", isCrewFav: false, tag: nil, price: "Free",
-              distance: "25 min · A/C to 14 St",
-              blurb: "Gansevoort to 34th on the old rail bed; go late afternoon."),
-        Venue(category: .see, name: "The Met", isCrewFav: false, tag: "needs 4 h", price: "$$",
-              distance: "35 min · 4/5 to 86 St",
-              blurb: "Only with a clear half-day. One wing, not five."),
-        Venue(category: .shop, name: "Century 21", isCrewFav: true, tag: "outlet", price: "$$",
-              distance: "5 min walk · Cortlandt St",
-              blurb: "Designer outlet steps from the hotel — crew ritual since forever."),
-        Venue(category: .shop, name: "Trader Joe’s", isCrewFav: false, tag: "snack haul", price: "$",
-              distance: "14 min · Broadway",
-              blurb: "The fly-home snack haul: peanut butter cups, everything seasoning."),
-        Venue(category: .shop, name: "B&H Photo", isCrewFav: false, tag: "electronics", price: "$$",
-              distance: "25 min · 34 St",
-              blurb: "Cameras and headphones at prices that beat home. Closed Saturdays."),
-        Venue(category: .shop, name: "CVS — 24 h", isCrewFav: false, tag: "late-safe", price: "$",
+        Venue(category: .eat, name: "Padella", isCrewFav: true, tag: nil, price: "$",
+              distance: "14 min · Borough Market",
+              blurb: "Fresh pasta, tiny prices; the queue moves. Pici cacio e pepe."),
+        Venue(category: .eat, name: "Dishoom", isCrewFav: false, tag: "crew breakfast", price: "$$",
+              distance: "9 min walk · Covent Garden",
+              blurb: "Bacon naan and house chai — the morning fix."),
+        Venue(category: .eat, name: "Flat Iron", isCrewFav: false, tag: "solo-friendly", price: "$$",
+              distance: "10 min walk · Covent Garden",
+              blurb: "One great steak, no ceremony; free ice cream on the way out."),
+        Venue(category: .eat, name: "The Wolseley", isCrewFav: false, tag: nil, price: "$$$",
+              distance: "18 min · Piccadilly",
+              blurb: "The proper end-of-trip dinner. Book for 19:00."),
+        Venue(category: .coffee, name: "Prufrock Coffee", isCrewFav: true, tag: nil, price: "$$",
+              distance: "6 min walk · Leather Lane",
+              blurb: "Serious flat white; quiet tables before 11."),
+        Venue(category: .coffee, name: "Monmouth Coffee", isCrewFav: false, tag: nil, price: "$$",
+              distance: "13 min · Covent Garden",
+              blurb: "The classic — and beans to fly home with."),
+        Venue(category: .coffee, name: "Kaffeine", isCrewFav: false, tag: "worth the trip", price: "$$",
+              distance: "22 min · Fitzrovia",
+              blurb: "Antipodean precision; the banana bread earns the walk."),
+        Venue(category: .see, name: "St James’s Park, golden hour", isCrewFav: true, tag: "beats jet lag", price: "Free",
+              distance: "20 min · Westminster",
+              blurb: "Evening light over the lake, pelicans included. Walk on to the river."),
+        Venue(category: .see, name: "Tate Modern", isCrewFav: false, tag: nil, price: "Free",
+              distance: "15 min walk · Bankside",
+              blurb: "Vast and free, late on Fri–Sat. The Turbine Hall alone."),
+        Venue(category: .see, name: "Borough Market", isCrewFav: false, tag: nil, price: "Free",
+              distance: "14 min · London Bridge",
+              blurb: "Graze lunch among the stalls; closed Sundays."),
+        Venue(category: .see, name: "Sky Garden", isCrewFav: false, tag: "book ahead", price: "Free",
+              distance: "18 min · Fenchurch St",
+              blurb: "The skyline from level 35 — free, but book the slot online."),
+        Venue(category: .shop, name: "Liberty", isCrewFav: true, tag: "icon", price: "$$$",
+              distance: "15 min · Soho",
+              blurb: "Tudor timbers and print scarves — the souvenir that lasts."),
+        Venue(category: .shop, name: "M&S Food Hall", isCrewFav: false, tag: "snack haul", price: "$",
               distance: "4 min walk",
-              blurb: "Midnight pharmacy run: melatonin, plasters, SPF."),
+              blurb: "Percy Pigs and shortbread — the fly-home haul."),
+        Venue(category: .shop, name: "Daunt Books", isCrewFav: false, tag: "worth the trip", price: "$$",
+              distance: "24 min · Marylebone",
+              blurb: "Edwardian oak galleries; travel books shelved by country."),
+        Venue(category: .shop, name: "Boots — late", isCrewFav: false, tag: "late-safe", price: "$",
+              distance: "9 min walk",
+              blurb: "Pharmacy run: melatonin, plasters, SPF."),
     ]
 
     var filteredVenues: [Venue] {
@@ -350,11 +400,11 @@ final class AppModel {
                 KitItem(id: "press", label: "Shirt pressed, wings on"),
                 KitItem(id: "spare", label: role == .cabin ? "Scarf + spare tights" : "Epaulettes + spare shirt"),
             ]),
-            KitGroup(id: "layover", name: "Layover — New York, July", items: [
-                KitItem(id: "jacket", label: "Light jacket — the AC is serious"),
+            KitGroup(id: "layover", name: "Layover — London, July", items: [
+                KitItem(id: "jacket", label: "Rain shell — it’s London"),
                 KitItem(id: "gym", label: "Gym kit + trainers"),
                 KitItem(id: "socks", label: "Compression socks"),
-                KitItem(id: "power", label: "Power bank + Type-A adapter"),
+                KitItem(id: "power", label: "Power bank + Type-G adapter"),
                 KitItem(id: "sleep", label: "Melatonin + eye mask"),
             ]),
         ]
@@ -375,7 +425,7 @@ final class AppModel {
     }
 
     var kitHint: String {
-        kitAllDone ? "ready to roll" : "for 26 h away"
+        kitAllDone ? "ready to roll" : "for 24 h away"
     }
 
     func toggleKitItem(_ id: String) {
@@ -389,13 +439,13 @@ final class AppModel {
     // MARK: Crew network
 
     static let baseFriends: [Friend] = [
-        Friend(id: "dilara", name: "Dilara S.", role: "Cabin · IST", cities: 44, nycCount: 12,
-               topAirports: ["JFK", "NRT", "CPT", "LHR"], mutual: 11),
-        Friend(id: "hatice", name: "Hatice D.", role: "FO · IST", cities: 61, nycCount: 23,
-               topAirports: ["JFK", "SIN", "GRU", "SYD"], mutual: 14),
-        Friend(id: "berkayu", name: "Berkay Can U.", role: "Purser · FRA", cities: 38, nycCount: 0,
-               topAirports: ["BKK", "JNB", "ICN"], mutual: 9),
-        Friend(id: "ahmetk", name: "Ahmet Enes K.", role: "Cabin · AMS", cities: 27, nycCount: 3,
+        Friend(id: "dilara", name: "Dilara S.", role: "Cabin · IST", cities: 44, lhrCount: 22,
+               topAirports: ["LHR", "NRT", "CPT", "JFK"], mutual: 11),
+        Friend(id: "hatice", name: "Hatice D.", role: "FO · IST", cities: 61, lhrCount: 9,
+               topAirports: ["LHR", "SIN", "GRU", "SYD"], mutual: 14),
+        Friend(id: "berkayu", name: "Berkay Can U.", role: "Purser · FRA", cities: 38, lhrCount: 5,
+               topAirports: ["LHR", "BKK", "JNB"], mutual: 9),
+        Friend(id: "ahmetk", name: "Ahmet Enes K.", role: "Cabin · AMS", cities: 27, lhrCount: 0,
                topAirports: ["JFK", "YYZ", "MAD"], mutual: 7),
     ]
 
@@ -403,8 +453,8 @@ final class AppModel {
         Self.baseFriends + addedFriends
     }
 
-    var nycFriends: [Friend] {
-        allFriends.filter { $0.nycCount > 0 }
+    var lhrFriends: [Friend] {
+        allFriends.filter { $0.lhrCount > 0 }
     }
 
     func sendTips(to friendID: String) {
@@ -423,7 +473,7 @@ final class AppModel {
         let name = newFriendName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { return }
         addedFriends.append(Friend(id: "friend-\(Date().timeIntervalSince1970)", name: name,
-                                   role: "Crew · new", cities: nil, nycCount: 0,
+                                   role: "Crew · new", cities: nil, lhrCount: 0,
                                    topAirports: [], mutual: 0))
         newFriendName = ""
     }
@@ -431,10 +481,116 @@ final class AppModel {
     // MARK: Atlas stamps
 
     static let stamps: [Stamp] = [
-        Stamp(title: "JFK · New York", isThisWeek: true, detail: "14th"),
+        Stamp(title: "LHR · London", isThisWeek: true, detail: "23rd"),
         Stamp(title: "NRT · Tokyo", isThisWeek: false, detail: "3rd · May"),
         Stamp(title: "GRU · São Paulo", isThisWeek: false, detail: "1st · April"),
-        Stamp(title: "LHR · London", isThisWeek: false, detail: "22nd · March"),
+        Stamp(title: "JFK · New York", isThisWeek: false, detail: "14th · June"),
         Stamp(title: "SIN · Singapore", isThisWeek: false, detail: "5th · February"),
     ]
+
+    // MARK: Roster
+
+    // Monthly schedule, period 01 Aug – 01 Sep 2026. Keys are day-of-month.
+    static let rosterDays: [Int: RosterDay] = [
+        1: RosterDay(type: .leave, label: "Annual leave"),
+        2: RosterDay(type: .off),
+        3: RosterDay(type: .off),
+        4: RosterDay(type: .leave, label: "Excuse leave (IMP)"),
+        5: RosterDay(type: .standby, label: "Call for roster"),
+        6: RosterDay(type: .standby, label: "Call for roster"),
+        7: RosterDay(type: .off, label: "Requested day off"),
+        8: RosterDay(type: .duty, code: "GOT", label: "Gothenburg turn · duty 9:35", flights: [
+            RosterFlight(number: "TK1799", route: "IST 12:25 → GOT 15:50"),
+            RosterFlight(number: "TK1800", route: "GOT 16:45 → IST 20:15"),
+        ]),
+        9: RosterDay(type: .duty, code: "ECN", label: "Pristina turn, night to Ercan", flights: [
+            RosterFlight(number: "TK1019", route: "IST 15:55 → PRN 17:35"),
+            RosterFlight(number: "TK1020", route: "PRN 18:25 → IST 20:05"),
+            RosterFlight(number: "TK964", route: "IST 22:10 → ECN 23:45"),
+        ], layoverStation: "ECN", layoverHotel: "Concorde Tower Hotel"),
+        10: RosterDay(type: .duty, code: "COV", label: "Ercan return + Coventry turn", flights: [
+            RosterFlight(number: "TK979", route: "ECN 13:55 → IST 15:40"),
+            RosterFlight(number: "TK2474", route: "IST 17:35 → COV 19:10"),
+            RosterFlight(number: "TK2475", route: "COV 19:55 → IST 21:40"),
+        ]),
+        11: RosterDay(type: .duty, code: "ZAG", label: "Zagreb turn · duty 7:05", flights: [
+            RosterFlight(number: "TK1055", route: "IST 15:25 → ZAG 17:35"),
+            RosterFlight(number: "TK1056", route: "ZAG 18:30 → IST 20:45"),
+        ]),
+        12: RosterDay(type: .off),
+        13: RosterDay(type: .off),
+        14: RosterDay(type: .duty, code: "KGL", label: "Kigali — continues to Entebbe", flights: [
+            RosterFlight(number: "TK606", route: "IST 15:45 → KGL 22:50"),
+        ], hasMalariaWarning: true),
+        15: RosterDay(type: .duty, code: "EBB", label: "Entebbe layover", flights: [
+            RosterFlight(number: "TK606", route: "KGL 00:10 → EBB 01:15"),
+        ], layoverStation: "EBB", layoverHotel: "Speke Resort & Conference Centre", hasMalariaWarning: true),
+        16: RosterDay(type: .duty, code: "IST", label: "Return · duty 8:05", flights: [
+            RosterFlight(number: "TK612", route: "EBB 02:10 → IST 09:15"),
+        ], hasMalariaWarning: true),
+        17: RosterDay(type: .off),
+        18: RosterDay(type: .off),
+        19: RosterDay(type: .duty, code: "KYA", label: "Konya + Gaziantep, four legs", flights: [
+            RosterFlight(number: "TK2036", route: "IST 07:15 → KYA 08:30"),
+            RosterFlight(number: "TK2037", route: "KYA 09:15 → IST 10:45"),
+            RosterFlight(number: "TK2228", route: "IST 13:10 → GZT 14:50"),
+            RosterFlight(number: "TK2229", route: "GZT 15:35 → IST 17:30"),
+        ]),
+        20: RosterDay(type: .off),
+        21: RosterDay(type: .off),
+        22: RosterDay(type: .duty, code: "BOG", label: "Bogotá — duty 14:55", flights: [
+            RosterFlight(number: "TK801", route: "IST 06:40 → BOG 20:05"),
+        ], layoverStation: "BOG", layoverHotel: "Hilton Bogotá Corferias"),
+        23: RosterDay(type: .duty, code: "PTY", label: "Bogotá → Panama City", flights: [
+            RosterFlight(number: "TK800", route: "BOG 21:35 → PTY 23:25"),
+        ], layoverStation: "PTY", layoverHotel: "Sortis Hotel"),
+        24: RosterDay(type: .duty, code: "PTY", label: "Panama City layover",
+                       layoverStation: "PTY", layoverHotel: "Sortis Hotel"),
+        25: RosterDay(type: .duty, code: "IST", label: "Return · duty 13:55", flights: [
+            RosterFlight(number: "TK801", route: "PTY 01:10 → IST 14:05"),
+        ]),
+        26: RosterDay(type: .standby, label: "Airport standby (AG)"),
+        27: RosterDay(type: .off),
+        28: RosterDay(type: .duty, code: "SKG", label: "Thessaloniki turn", flights: [
+            RosterFlight(number: "TK1893", route: "IST 16:00 → SKG 17:25"),
+            RosterFlight(number: "TK1894", route: "SKG 18:15 → IST 19:40"),
+        ]),
+        29: RosterDay(type: .duty, code: "ASB", label: "Ashgabat — lands 02:30", flights: [
+            RosterFlight(number: "TK322", route: "IST 17:15 → ASB 20:55"),
+        ]),
+        30: RosterDay(type: .duty, code: "IST", label: "Return, early hours", flights: [
+            RosterFlight(number: "TK323", route: "ASB 22:15 → IST 02:30"),
+        ]),
+        31: RosterDay(type: .standby, label: "Call for roster"),
+    ]
+
+    // August 2026 starts on a Saturday: 5 leading blanks, 6 trailing, 42 cells total.
+    var rosterCalendarCells: [CalendarCell] {
+        var cells: [CalendarCell] = Array(repeating: .blank, count: 5)
+        cells.append(contentsOf: (1...31).map { .day($0) })
+        cells.append(contentsOf: Array(repeating: .blank, count: 42 - cells.count))
+        return cells
+    }
+
+    var rosterSelectedDay: RosterDay {
+        Self.rosterDays[selectedRosterDay] ?? RosterDay(type: .off)
+    }
+
+    var rosterCounts: (duty: Int, off: Int, standby: Int, leave: Int) {
+        var duty = 0, off = 0, standby = 0, leave = 0
+        for day in 1...31 {
+            switch (Self.rosterDays[day] ?? RosterDay(type: .off)).type {
+            case .duty: duty += 1
+            case .off: off += 1
+            case .standby: standby += 1
+            case .leave: leave += 1
+            }
+        }
+        return (duty, off, standby, leave)
+    }
+
+    var rosterStatsString: String {
+        let c = rosterCounts
+        return "\(c.duty) duty · \(c.off) off · \(c.standby) standby · \(c.leave) leave"
+    }
 }

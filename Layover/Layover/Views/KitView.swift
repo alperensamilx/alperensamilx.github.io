@@ -5,7 +5,7 @@ struct KitView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Kicker("26 H AWAY · NYC 26–29°")
+            Kicker("24 H AWAY · LHR 18–23°")
                 .padding(.top, 10)
                 .padding(.bottom, 3)
             ScreenTitle("Kit")
