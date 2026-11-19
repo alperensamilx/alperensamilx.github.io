@@ -58,7 +58,6 @@ struct RootView: View {
 
 private struct TopBar: View {
     @Environment(AppModel.self) private var model
-    @Environment(AuthService.self) private var auth
     @Environment(\.palette) private var p
     let theme: AppTheme
 
@@ -74,9 +73,6 @@ private struct TopBar: View {
                 .foregroundStyle(p.secondary)
             circleButton(system: theme == .light ? "moon" : "sun.max", label: "Toggle appearance") {
                 model.themeOverride = theme == .dark ? .light : .dark
-            }
-            circleButton(system: "rectangle.portrait.and.arrow.right", label: "Sign out") {
-                auth.signOut()
             }
         }
         .padding(.horizontal, 20)
