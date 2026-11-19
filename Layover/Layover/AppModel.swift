@@ -1,5 +1,6 @@
 import SwiftUI
 import Observation
+import CoreLocation
 
 // MARK: - Domain types
 
@@ -41,6 +42,33 @@ enum CityFilter: String, CaseIterable {
     case coffee = "Coffee"
     case see = "See"
     case shop = "Shop"
+}
+
+enum NearbyCategory: String, CaseIterable, Identifiable {
+    case pharmacy, atm, supermarket, mall, store
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .pharmacy: "Pharmacy"
+        case .atm: "ATM"
+        case .supermarket: "Supermarket"
+        case .mall: "Mall"
+        case .store: "Store"
+        }
+    }
+
+    // Used as the MKLocalSearch natural-language query.
+    var searchTerm: String {
+        switch self {
+        case .pharmacy: "Pharmacy"
+        case .atm: "ATM"
+        case .supermarket: "Supermarket"
+        case .mall: "Shopping mall"
+        case .store: "Convenience store"
+        }
+    }
 }
 
 enum Currency: String, CaseIterable {
@@ -189,6 +217,10 @@ final class AppModel {
     var cityFilter: CityFilter = .all
     var fxAmount = "60"
     var fxFrom: Currency = .GBP
+
+    // Nearby (MapKit) — defaults to the practical essentials; mall/market/store are opt-in.
+    static let hotelCoordinate = CLLocationCoordinate2D(latitude: 51.5174, longitude: -0.1200)
+    var nearbyCategories: Set<NearbyCategory> = [.pharmacy, .atm]
 
     // Kit
     var kitDone: Set<String> = []

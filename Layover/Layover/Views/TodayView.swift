@@ -17,6 +17,9 @@ struct TodayView: View {
             SectionHeader("The layover")
             LayoverGridCard()
                 .padding(.bottom, 14)
+            SectionHeader("At the hotel")
+            HotelCard()
+                .padding(.bottom, 14)
             AtlasTeaser()
         }
     }
@@ -336,6 +339,41 @@ private struct LayoverGridCard: View {
                 .foregroundStyle(p.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Hotel card
+
+private struct HotelCard: View {
+    @Environment(\.palette) private var p
+
+    var body: some View {
+        VStack(spacing: 0) {
+            infoRow(label: "Wake-up call", value: "06:00", first: true)
+            infoRow(label: "Pick-up", value: "07:00")
+            infoRow(label: "Breakfast", value: "05:30 – 10:00")
+            infoRow(label: "Dry cleaning", value: "Same-day, by noon")
+        }
+        .padding(.vertical, 4)
+        .card()
+    }
+
+    private func infoRow(label: String, value: String, first: Bool = false) -> some View {
+        VStack(spacing: 0) {
+            if !first { Hairline() }
+            HStack {
+                Text(label)
+                    .foregroundStyle(p.secondary)
+                Spacer()
+                Text(value)
+                    .fontWeight(.bold)
+                    .monospacedDigit()
+            }
+            .font(.hanken(13.5))
+            .padding(.horizontal, 18)
+            .padding(.vertical, 4)
+            .frame(minHeight: 46)
+        }
     }
 }
 

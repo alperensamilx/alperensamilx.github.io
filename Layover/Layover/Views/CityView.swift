@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 struct CityView: View {
     @Environment(AppModel.self) private var model
@@ -13,6 +14,8 @@ struct CityView: View {
             ScreenTitle("City")
                 .padding(.bottom, 16)
             CrewIntelCard()
+                .padding(.bottom, 14)
+            NearbyCard()
                 .padding(.bottom, 14)
             SegmentedPill(options: CityFilter.allCases.map { ($0, $0.rawValue) },
                           selection: $model.cityFilter)
@@ -192,3 +195,120 @@ private struct VenueRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
+// MARK: - Nearby (MapKit)
+
+private struct NearbyCard: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.palette) private var p
+    @State private var service = NearbyPlacesService()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Nearby the hotel")
+                .font(.hanken(13, .bold))
+                .padding(.horizontal, 18)
+                .padding(.top, 14)
+                .padding(.bottom, 10)
+
+            CategoryChips()
+                .padding(.bottom, 12)
+
+            Group {
+                if service.isLoading {
+                    Text("Searching…")
+                        .font(.hanken(12.5))
+                        .foregroundStyle(p.secondary)
+                } else if service.results.isEmpty {
+                    Text(service.hasSearched
+                         ? "Nothing found nearby for these categories."
+                         : "Pick a category above to search near the hotel.")
+                        .font(.hanken(12.5))
+                        .foregroundStyle(p.secondary)
+                } else {
+                    EmptyView()
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 14)
+
+            if !service.results.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(Array(service.results.enumerated()), id: \.element.id) { index, place in
+                        VStack(spacing: 0) {
+                            if index > 0 { Hairline() }
+                            NearbyRow(place: place)
+                        }
+                    }
+                }
+                .padding(.bottom, 4)
+            }
+        }
+        .card()
+        .task(id: model.nearbyCategories) {
+            await service.search(categories: model.nearbyCategories, around: AppModel.hotelCoordinate)
+        }
+    }
+}
+
+private struct CategoryChips: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.palette) private var p
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(NearbyCategory.allCases) { category in
+                    let on = model.nearbyCategories.contains(category)
+                    Button {
+                        if on {
+                            model.nearbyCategories.remove(category)
+                        } else {
+                            model.nearbyCategories.insert(category)
+                        }
+                    } label: {
+                        Text(category.label)
+                            .font(.hanken(12, .bold))
+                            .foregroundStyle(on ? p.onAccent : p.secondary)
+                            .padding(.horizontal, 14)
+                            .frame(minHeight: 34)
+                            .background(on ? p.accent : p.fill, in: Capsule())
+                    }
+                    .buttonStyle(PressScale(0.96))
+                }
+            }
+            .padding(.horizontal, 18)
+        }
+    }
+}
+
+private struct NearbyRow: View {
+    @Environment(\.palette) private var p
+    let place: NearbyPlace
+
+    var body: some View {
+        HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(place.name)
+                    .font(.hanken(14, .bold))
+                Text(place.address ?? place.category.label)
+                    .font(.hanken(11.5))
+                    .foregroundStyle(p.secondary)
+            }
+            Spacer(minLength: 8)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(place.distanceLabel)
+                    .font(.hanken(12.5, .bold))
+                    .monospacedDigit()
+                Text(place.category.label.uppercased())
+                    .font(.hanken(9.5, .heavy))
+                    .tracking(0.3)
+                    .foregroundStyle(p.tertiary)
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 10)
+        .frame(minHeight: 50)
+    }
+}
+

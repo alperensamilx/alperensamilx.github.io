@@ -122,8 +122,8 @@ private struct CalendarCard: View {
             HStack(spacing: 14) {
                 legend(color: p.accent, filled: true, label: "Duty")
                 legend(color: p.accent, filled: false, label: "Standby")
-                legend(color: p.amber, filled: true, label: "Leave")
-                legend(color: p.fill, filled: true, label: "Off", bordered: true)
+                legend(color: p.secondary, filled: true, label: "Leave")
+                legend(color: p.tertiary, filled: true, label: "Day off")
             }
             .padding(.top, 12)
             .padding(.horizontal, 6)
@@ -186,9 +186,15 @@ private struct DayCell: View {
         case .standby:
             Circle().strokeBorder(p.accent, lineWidth: 1.5).frame(width: 6, height: 6)
         case .leave:
-            Circle().fill(p.amber).frame(width: 6, height: 6)
+            Circle().fill(p.secondary).frame(width: 6, height: 6)
         case .off:
-            Circle().fill(.clear).frame(width: 6, height: 6)
+            // An unlabeled off day is a system-default blank (no dot, no color);
+            // a labeled one (e.g. "Requested day off") is a day the crew member chose.
+            if info.label != nil {
+                Circle().fill(p.tertiary).frame(width: 6, height: 6)
+            } else {
+                Circle().fill(.clear).frame(width: 6, height: 6)
+            }
         }
     }
 }
@@ -268,7 +274,7 @@ private struct DayDetailCard: View {
         let colors: (fg: Color, bg: Color) = switch type {
         case .duty: (p.accentText, p.accentSoft)
         case .off: (p.secondary, p.fill)
-        case .leave: (p.amber, p.amberSoft)
+        case .leave: (p.secondary, p.fill)
         case .standby: (p.accentText, p.accentSoft)
         }
         return TagPill(text: type.name.uppercased(), foreground: colors.fg, background: colors.bg)
