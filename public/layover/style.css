@@ -1,0 +1,185 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #0a0e12;
+  color: #e2e8f0; /* slate-200 */
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  background: rgba(10, 14, 18, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nav-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordmark {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.wordmark span {
+  color: #5eead4;
+}
+
+.nav-back {
+  font-size: 13px;
+  color: #94a3b8; /* slate-400 */
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.nav-back:hover {
+  color: #5eead4;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 24px 96px;
+}
+
+.kicker {
+  color: #5eead4;
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 44px);
+  color: #fff;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.updated {
+  font-size: 13px;
+  color: #64748b; /* slate-500 */
+  margin: 0 0 48px;
+}
+
+h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #fff;
+  margin: 40px 0 12px;
+}
+
+p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #cbd5e1; /* slate-300 */
+  margin: 0 0 16px;
+}
+
+ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+li::marker {
+  color: #5eead4;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 32px 0;
+}
+
+.card p:last-child {
+  margin-bottom: 0;
+}
+
+.button {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: #5eead4;
+  color: #0a0e12;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.button:hover {
+  background: rgba(94, 234, 212, 0.8);
+}
+
+.faq-q {
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.faq-item {
+  margin-bottom: 24px;
+}
+
+footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+footer p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0 0 4px;
+}
+
+footer p.copyright {
+  font-size: 12px;
+  color: #475569; /* slate-600 */
+}
